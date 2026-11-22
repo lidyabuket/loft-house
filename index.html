@@ -46,6 +46,14 @@ button.on{background:#5b6b4f;border-color:#1d2418}
 .dock{display:flex;gap:4px;flex-wrap:nowrap}
 .dock button{font-size:14px;padding:0 10px;white-space:nowrap}
 #menu[hidden],#help[hidden]{display:none}
+#trToggle{display:flex;align-items:center;gap:6px;padding:0 10px;font-size:16px;font-weight:600}
+#trToggle .tg-ic{font-size:18px}#trToggle .tg-ar{font-size:12px;transition:transform .2s}
+#trPanel:not(.collapsed) #trToggle .tg-ar{transform:rotate(180deg)}
+#trItems{display:flex;gap:8px;align-items:stretch}
+#trPanel.collapsed #trItems{display:none}
+#trPanel.collapsed{padding:6px}
+@media (max-width:600px){#trItems{flex-direction:column}#trToggle{min-width:96px;justify-content:center}}
+
 #cover{position:fixed;inset:0;z-index:60;background:#24172e;overflow:hidden;transition:opacity .8s steps(8),transform .9s cubic-bezier(.6,0,.4,1)}
 #cover[hidden]{display:none}
 #cover.leave{opacity:0;transform:scale(1.35);pointer-events:none}
@@ -128,7 +136,9 @@ html,body{overscroll-behavior:none;user-select:none;-webkit-user-select:none}</s
   <button class="who" data-who="D"><img alt=""><span>Doğuş</span></button>
   <button class="who" data-who="K" title="Kedo'yu takip et"><img alt=""><span>Kedo</span></button>
 </header>
-<div class="tr panel">
+<div class="tr panel" id="trPanel">
+  <button id="trToggle" aria-expanded="false" aria-controls="trItems" title="Ayarlar"><span class="tg-ic">⚙️</span><span id="trTime">--:--</span><span class="tg-ar">▾</span></button>
+  <div id="trItems">
   <button id="daynight" aria-pressed="false" aria-label="Gündüz / gece">
     <span class="knob"></span>
     <svg viewBox="0 0 10 10" shape-rendering="crispEdges"><g fill="#3a2a10"><rect x="3" y="3" width="4" height="4"/><rect x="4" y="0" width="2" height="2"/><rect x="4" y="8" width="2" height="2"/><rect x="0" y="4" width="2" height="2"/><rect x="8" y="4" width="2" height="2"/></g></svg>
@@ -141,6 +151,7 @@ html,body{overscroll-behavior:none;user-select:none;-webkit-user-select:none}</s
   <button id="autoBtn" class="emo on" aria-label="Otomatik yaşam" title="Otomatik yaşam: karakterler kendi kendine bir şeyler yapar">🤖</button>
   <button id="helpBtn" aria-label="Kontroller" aria-expanded="false">?</button>
   <button id="pix" aria-label="Piksel boyutu"><svg viewBox="0 0 10 10" shape-rendering="crispEdges" fill="currentColor"><rect x="1" y="1" width="3" height="3"/><rect x="6" y="1" width="3" height="3" opacity=".5"/><rect x="1" y="6" width="3" height="3" opacity=".5"/><rect x="6" y="6" width="3" height="3"/></svg></button>
+</div>
 </div>
 <div class="bl panel">
   <div id="emotes"></div><span class="sep"></span>
@@ -1495,7 +1506,7 @@ function main(IMG) {
     const H0 = Math.acos(clamp(-Math.tan(lat) * Math.tan(dec) - .0145 / Math.cos(lat) / Math.cos(dec), -1, 1)) * 180 / Math.PI / 15, B = 2 * Math.PI * (N - 81) / 364, eot = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B), noon = 12 + (45 - 28.98) / 15 - eot / 60; return [noon - H0, noon + H0]; }
   function istIsNight() { const t = istNow(), h = t.h + t.m / 60, [r, s] = sunTimes(t); return h < r - .2 || h > s + .35; }
   const AYLAR = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'], GUN = { Mon: 'Pzt', Tue: 'Sal', Wed: 'Çar', Thu: 'Per', Fri: 'Cum', Sat: 'Cmt', Sun: 'Paz' };
-  function tickClock() { const t = istNow(); document.getElementById('clockT').textContent = String(t.h).padStart(2, '0') + ':' + String(t.m).padStart(2, '0'); const [r, s] = sunTimes(t), f = x => String(Math.floor(x)).padStart(2, '0') + ':' + String(Math.floor((x % 1) * 60)).padStart(2, '0');
+  function tickClock() { const t = istNow(); const hm = String(t.h).padStart(2, '0') + ':' + String(t.m).padStart(2, '0'); document.getElementById('clockT').textContent = hm; document.getElementById('trTime').textContent = hm; const [r, s] = sunTimes(t), f = x => String(Math.floor(x)).padStart(2, '0') + ':' + String(Math.floor((x % 1) * 60)).padStart(2, '0');
     document.getElementById('clockD').textContent = `${GUN[t.wd] || ''} ${t.d} ${AYLAR[t.mo - 1]} · İstanbul`; document.getElementById('clockBtn').title = `İstanbul saati · gün doğumu ${f(r)}, gün batımı ${f(s)}. Tıkla: gerçek zamanlı gece/gündüz ${S.realTime ? 'açık' : 'kapalı'}`;
     if (S.realTime) { const nn = istIsNight(); if (nn !== (S.nightT > .5)) setNight(nn, true); } }
   function setNight(on, auto) { if (!auto && S.realTime) { S.realTime = false; setTimeout(() => toast('⏱️ Gerçek zaman kapandı · saate dokunarak geri açabilirsin'), 1400); }
@@ -1709,6 +1720,10 @@ function main(IMG) {
   function updateHud() { const cb = document.getElementById('clockBtn'); if (cb) { cb.classList.toggle('on', !!S.realTime); cb.setAttribute('aria-pressed', !!S.realTime); } nightBtn.setAttribute('aria-pressed', S.nightT > .5); nightBtn.classList.toggle('night', S.nightT > .5); document.getElementById('music').classList.toggle('on', MUS.on); document.getElementById('mute').textContent = AU.muted ? '🔇' : '🔊'; document.getElementById('autoBtn').classList.toggle('on', S.auto); document.getElementById('pix').dataset.v = ['İnce', 'Orta', 'Kalın'][pixelPref]; }
   on('clockBtn', () => { S.realTime = !S.realTime; toast(S.realTime ? '⏱️ Gerçek zaman: ev İstanbul saatine göre gece/gündüz olur' : '⏱️ Gerçek zaman kapalı'); tickClock(); updateHud(); });
   S.realTime = true; S.nightT = S.night = istIsNight() ? 1 : 0; if (S.nightT) { setCandles(true, true); } tickClock(); setInterval(tickClock, 5000);
+  { const P = document.getElementById('trPanel'), B = document.getElementById('trToggle'); let st = null; try { st = localStorage.getItem('loft-tr'); } catch (e) { }
+    const set = open => { P.classList.toggle('collapsed', !open); B.setAttribute('aria-expanded', open); if (!open) { musEl.hidden = true; document.getElementById('help').hidden = true; } };
+    set(st ? st === 'open' : innerWidth > 900);
+    B.onclick = () => { const open = P.classList.contains('collapsed'); set(open); try { localStorage.setItem('loft-tr', open ? 'open' : 'closed'); } catch (e) { } SFX.click(); }; }
   selectChar('L'); updateHud();
 
   // ===== RENDER =====

@@ -4,7 +4,7 @@
  "description": "Lidya, Doğuş ve Kedo'nun piksel loft evi",
  "start_url": "./",
  "scope": "./",
- "display": "fullscreen",
+ "display": "standalone",
  "orientation": "any",
  "background_color": "#24172e",
  "theme_color": "#24172e",
@@ -28,5 +28,10 @@
    "type": "image/png",
    "purpose": "maskable"
   }
- ]
+ ],
+ "display_override": [
+  "fullscreen",
+  "standalone"
+ ],
+ "id": "./"
 }
