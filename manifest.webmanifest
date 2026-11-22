@@ -1,0 +1,32 @@
+{
+ "name": "Loft House · Lidya & Doğuş",
+ "short_name": "Loft House",
+ "description": "Lidya, Doğuş ve Kedo'nun piksel loft evi",
+ "start_url": "./",
+ "scope": "./",
+ "display": "fullscreen",
+ "orientation": "any",
+ "background_color": "#24172e",
+ "theme_color": "#24172e",
+ "lang": "tr",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
