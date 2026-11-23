@@ -2001,6 +2001,7 @@ const IMG = {}; let left = Object.keys(ASSETS).length;
 for (const k in ASSETS) { const [w, h, url] = ASSETS[k]; const im = new Image(); im.onload = () => { if (--left === 0) { setTimeout(() => { try { main(IMG); } catch (e) { console.error(e); const el = document.getElementById('err'); el.hidden = false; el.textContent = 'Hata: ' + e.message.slice(0, 300); } }, 30); } }; im.src = url; IMG[k] = { img: im, w, h, url }; }
 }
 </script>
-<script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}</script>
+<script>if("serviceWorker" in navigator){let rl=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!rl&&!document.getElementById("cover").classList.contains("leave")){rl=true;location.reload()}});
+addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")r.update()})}).catch(()=>{}))}</script>
 </body>
 </html>
